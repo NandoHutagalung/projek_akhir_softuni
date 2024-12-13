@@ -1,0 +1,56 @@
+{% extends 'frontend/template_pesanan.html' %}
+{% load static %}
+{% load filters %}
+{% block content %}
+    {% if messages %}
+        {% for message in messages %}
+            {% if message.tags == "error" %}
+                <div class="alert alert-danger mt-5" role="alert">
+                    {{ message }}
+                </div>
+            {% elif message.tags == "success" %}
+                <div class="alert alert-success mt-5" role="alert">
+                    {{ message }}
+                </div>
+            {% else %}
+                <div class="alert alert-info mt-5" role="alert">
+                    {{ message }}
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+<div class="container py-5">
+    <h4>Selamat Datang, {{ user.username }}</h4>
+    <div class="d-flex justify-content-between align-items-center py-2">
+    </div>
+    <table id="dataTables_pesanan" class="table table-bordered table-striped table-responsive">
+        <thead class="table-dark">
+            <tr>
+                <th>User</th>
+                <th>Meja</th>
+                <th>Tanggal</th>
+                <th>Total Harga</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for pesanan in pesanan_list %}
+            <tr>
+                <td>{{ pesanan.user.username }}</td>
+                <td>{{ pesanan.meja.no_meja }}</td>
+                <td>{{ pesanan.tanggal_pemesanan }}</td>
+                <td>{{ pesanan.total_harga | rupiah }}</td>
+                <td>
+                   <a href="{% url 'editpesananuser' pk=pesanan.id %}" class="btn btn-warning btn-sm">Edit</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<script>
+    $(document).ready(function() {
+        $('#dataTables_pesanan').DataTable();
+    });
+</script>
+{% endblock %}

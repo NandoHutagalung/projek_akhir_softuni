@@ -1,0 +1,27 @@
+{% extends 'projekan_akhir/base.html' %}
+{% block content %}
+<div class="container mt-5 mb-5">
+    {% if messages %}
+        {% for message in messages %}
+            {% if message.tags == "error" %}
+                <div class="alert alert-danger mt-5" role="alert">
+                    {{ message }}
+                </div>
+            {% elif message.tags == "success" %}
+                <div class="alert alert-success mt-5" role="alert">
+                    {{ message }}
+                </div>
+            {% else %}
+                <div class="alert alert-info mt-5" role="alert">
+                    {{ message }}
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+    <h1 class="mt-4">{{ menu.nama_menu }}</h1>
+    <p><strong>Harga:</strong> {{ menu.harga }}</p>
+    <p><strong>Foto:</strong></p>
+    <img src="{{ menu.foto.url }}" width="300" alt="{{ menu.nama_menu }}">
+    <a href="{% url 'menu_list' %}" class="btn btn-secondary mt-3">Kembali ke Daftar Menu</a>
+</div>
+{% endblock %}

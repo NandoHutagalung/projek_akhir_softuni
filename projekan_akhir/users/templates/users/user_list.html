@@ -1,0 +1,61 @@
+{% extends 'projekan_akhir/base.html' %}
+
+{% block content %}
+    <div class="container my-5">
+    {% if messages %}
+        {% for message in messages %}
+            {% if message.tags == "error" %}
+                <div class="alert alert-danger mt-5" role="alert">
+                    {{ message }}
+                </div>
+            {% elif message.tags == "success" %}
+                <div class="alert alert-success mt-5" role="alert">
+                    {{ message }}
+                </div>
+            {% else %}
+                <div class="alert alert-info mt-5" role="alert">
+                    {{ message }}
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+       <a class="btn btn-dark mb-3" href="{% url 'create_user' %}">Tambah User</a>
+        <table id="userTable" class="table table-bordered table-striped table-responsive">
+            <thead class="table-dark">
+                <tr>
+                    <th>Username</th>
+                    <th>Full Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.get_full_name }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.get_role_display }}</td>
+                    <td>
+                        <a href="{% url 'user_detail' user.id %}" class="btn btn-info btn-sm">Details</a>
+                        <a href="{% url 'profile_update' user.id %}" class="btn btn-warning btn-sm">Edit</a>
+                        <a href="{% url 'user_delete' user.id %}" class="btn btn-danger btn-sm">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Include DataTables JS and CSS -->
+
+
+    <script>
+        $(document).ready(function() {
+            // Initialize DataTable on the table
+            $('#userTable').DataTable();
+        });
+    </script>
+
+{% endblock content %}

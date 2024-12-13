@@ -1,0 +1,253 @@
+{% extends 'frontend/base.html' %}
+{% load static %}
+{% load filters %}
+{% block css %} 
+<style>
+            .card {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 16px;
+            text-align: center;
+            width: 200px;
+            display: inline-block;
+        }
+        .card h3 {
+            font-size: 1.5em;
+            margin-bottom: 12px;
+        }
+        .card p {
+            font-size: 1.2em;
+            margin-bottom: 12px;
+        }
+        .card .btn {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .card .btn.booked {
+            background-color: #f44336;
+        }
+</style>
+{% endblock css %}
+{%block content%}
+{% if messages %}
+    {% for message in messages %}
+        <script>
+            Swal.fire({
+                icon: "{% if message.tags == 'error' %}error{% elif message.tags == 'success' %}success{% else %}info{% endif %}",
+                title: "Pesan",
+                text: "{{ message }}",
+                timer: 5000,  
+                showConfirmButton: true, 
+            });
+        </script>
+    {% endfor %}
+{% endif %}
+  <main class="main">
+    <section id="hero" class="hero section dark-background">
+
+      <img src="{% static 'img/hero-bg.jpg' %}" alt="" data-aos="fade-in">
+
+      <div class="container">
+        <div class="row justify-content-center text-center" data-aos="fade-up" data-aos-delay="100">
+          <div class="col-xl-6 col-lg-8">
+            <h2>Biliar Kimo: Seru, Santai, Penuh Gaya!<span></span></h2>
+            <p>We are team of talented digital marketers</p>
+          </div>
+        </div>
+      </div>
+
+    </section><!-- /Hero Section -->
+
+    <!-- About Section -->
+    <section id="about" class="about section">
+
+      <div class="container" data-aos="fade-up" data-aos-delay="100">
+
+        <div class="row gy-4">
+          <div class="col-lg-4 order-1 order-lg-2">
+            <img src="{% static 'img/infoharga.jpg' %}" class="img-fluid" alt="">
+          </div>
+          <div class="col-lg-4 order-1 order-lg-2">
+            <img src="{% static 'img/about.jpg' %}" class="img-fluid " alt="" style="height: 278px;">
+            <img src="{% static 'img/about.jpg' %}" class="img-fluid " alt="" style="height: 278px;">
+          </div>
+          <div class="col-lg-4 order-1 order-lg-2">
+            <img src="{% static 'img/infomakan.jpg' %}" class="img-fluid" alt="">
+          </div>
+          <!-- <div class="col-lg-4 order-2 order-lg-1 content">
+            <h3>Billiar Kimo</h3>
+            <p class="fst-italic" style="text-align: justify !important;">
+            Biliar Kimo adalah sebuah tempat bermain biliar yang menawarkan pengalaman hiburan berkualitas dengan suasana yang nyaman dan modern. Menyediakan meja biliar yang terawat dengan baik dan berbagai fasilitas pendukung, Biliar Kimo menjadi pilihan ideal bagi para penggemar biliar maupun mereka yang ingin menghabiskan waktu bersama teman-teman atau keluarga.
+            </p>
+            <p class="fst-italic" style="text-align: justify !important;">
+            Dengan pelayanan yang ramah dan profesional, Biliar Kimo berkomitmen untuk memberikan pengalaman bermain yang menyenangkan, baik untuk pemula maupun pemain berpengalaman. Di tempat ini, pengunjung dapat menikmati sesi bermain biliar yang seru sambil menikmati berbagai pilihan makanan dan minuman, menjadikannya tempat yang cocok untuk bersantai dan berinteraksi.
+            </p>
+          </div> -->
+        </div>
+
+      </div>
+
+    </section><!-- /About Section -->
+
+  <section id="meja" class="services section">
+    <!-- Section Title -->
+    <div class="container section-title" data-aos="fade-up">
+        <h2>Pesan Sekarang</h2>
+        <p>Meja Biliar Kami</p>
+    </div><!-- End Section Title -->
+    <div class="container">
+        <div class="row gy-4">
+        {% for meja in meja_biliars %}
+        <div class="col-lg-3 col-md-4" data-aos="fade-up" data-aos-delay="100">
+            <div class="service-item position-relative" style="background-image: url('{% static "img/aboutt.jpg" %}'); background-size: cover; background-position: center; height: 250px; border-radius: 10px;">
+            <div class="card-body d-flex flex-column">
+            <h1 class="card-title text-white" style="font-weight: 900 !important; margin-top: -30px !important;">{{ meja.no_meja }}</h1>
+                {% if meja.status == 'ada' %} 
+                <h5 class="card-title text-white text-bold" style="font-weight: 600 !important; margin-top: 30px !important;">Status: Ready</h5>
+                {% elif meja.status == 'full' %} <!-- Jika meja penuh -->
+                <h5 class="card-title text-white text-bold" style="font-weight: 600 !important; margin-top: 30px !important;">Status: Full</h5>
+                {% elif meja.status == 'perbaikan' %} <!-- Jika meja sedang dalam perbaikan -->
+                <h5 class="card-title text-white text-bold" style="font-weight: 600 !important; margin-top: 30px !important;"">Status: Maintenance</h3>
+                {% endif %}
+
+                {% comment %}
+                Mendapatkan waktu saat ini
+                {% endcomment %}
+                {% now "H" as current_hour %}
+
+                {% comment %}
+                Tentukan harga berdasarkan jam
+                {% endcomment %}
+                {% if current_hour >= 8 and current_hour <= 16 %}
+                <h3 class="card-title text-white text-bold">Harga: {{ meja.harga_siang|rupiah }}</h3> <!-- Harga siang dalam format Rupiah -->
+                {% else %}
+                <h3 class="card-title text-white text-bold">Harga: {{ meja.harga_malam|rupiah }}</h3> <!-- Harga malam dalam format Rupiah -->
+                {% endif %}
+
+                {% if meja.status == 'ada' %} 
+                <a href="{% url 'frontendpesanan'%}" class="btn btn-success mt-auto rounded" style="background-color: #ea15ee !important; font-weight: 600 !important; border-radius: 20px !important;">Pesan Sekarang</a>
+                {% elif meja.status == 'full' %} <!-- Jika meja penuh -->
+                {% elif meja.status == 'perbaikan' %} <!-- Jika meja sedang dalam perbaikan -->
+                {% else %}
+                <button class="btn btn-secondary mt-auto" disabled>Status Tidak Dikenal</button>
+                {% endif %}
+            </div>
+            </div>
+        </div>
+        {% empty %}
+        <p class="text-center text-white">Tidak ada meja biliar tersedia.</p>
+        {% endfor %}
+        </div>
+    </div>
+    </section>
+  <section id="food" class="services section">
+    <!-- Section Title -->
+    <div class="container section-title" style="margin-bottom: -65px;" data-aos="fade-up">
+        <h2>Food's & Drink's</h2>
+        <p>Menu Kami</p>
+    </div><!-- End Section Title -->
+    <div class="container">
+        <div class="row gy-4">
+        {% for m in menu %}
+        <div class="col-lg-3 col-md-4" data-aos="fade-up" data-aos-delay="100">
+          <br>
+          <div class="card-body d-flex flex-column" style="height: 60px; justify-content: flex-end;" >
+          <h3 class="card-title text-dark text-bold text-center" style="font-weight: 900 !important; margin-top: -25px;">{{ m.nama_menu }}</h3>
+          <h3 class="card-title text-dark text-bold text-center" style="font-weight: 900 !important;">{{ m.harga|rupiah }}</h3> 
+          </div>
+            <div class="service-item mt-3 position-relative" style="background-image: url('{{ m.foto.url }}'); background-size: cover; background-position: center; height: 250px; border-radius: 10px;">
+            </div>
+        </div>
+        {% empty %}
+        <p class="text-center text-white">Tidak ada meja biliar tersedia.</p>
+        {% endfor %}
+        </div>
+    </div>
+    </section>
+    <!-- Services Section -->
+    <section id="services" class="services section">
+
+      <!-- Section Title -->
+      <div class="container section-title" data-aos="fade-up">
+        <h2>Layanan Kami</h2>
+        <p>Bukan layanan biasa</p>
+      </div><!-- End Section Title -->
+
+      <div class="container">
+
+        <div class="row gy-4">
+
+          <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+            <div class="service-item position-relative">
+              <div class="icon">
+                <i class="bi bi-cash-coin"></i>
+              </div>
+              <a href="/frontend/pesanan" class="stretched-link">
+                <h3>Hemat Seru dengan Diskon 10% + 30%</h3>
+              </a>
+              <p>Rasakan serunya bermain biliar tanpa khawatir kantong bolong! 🎱 Kami memberikan diskon spesial 10% harga meja dan makanan/minuman untuk setiap pemesanan meja biliar minimal 3 jam. Jadikan waktu santai Anda lebih hemat dan menyenangkan bersama teman atau keluarga di Kimo Billiard. Jangan lewatkan kesempatan ini, ayo pesan sekarang dan nikmati permainan dengan harga yang ramah di kantong! 💥.</p>
+            </div>
+          </div><!-- End Service Item -->
+
+          <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
+            <div class="service-item position-relative">
+              <div class="icon">
+                <i class="bi bi-egg-fried"></i>
+              </div>
+              <a href="/frontend/pesanan" class="stretched-link">
+                <h3>Nikmati Serunya Bermain & Lezatnya Hidangan</h3>
+              </a>
+              <p>Main biliar sambil lapar? Tidak perlu khawatir! 🎱🍔 Di Kimo Billiard, kami tidak hanya menyediakan meja biliar berkualitas, tapi juga beragam pilihan makanan lezat yang siap memanjakan lidah Anda. Mulai dari camilan ringan hingga hidangan berat, semuanya tersedia untuk menemani keseruan bermain Anda. Jadi, main biliar makin asyik, perut pun tetap kenyang! 🍕🍟</p>
+            </div>
+          </div><!-- End Service Item -->
+
+          <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="300">
+            <div class="service-item position-relative">
+              <div class="icon">
+                <i class="bi bi-award"></i>
+              </div>
+              <a href="/frontend/pesanan" class="stretched-link">
+                <h3>Kenapa Memilih Kimo Billiard?</h3>
+              </a>
+              <p>Di Kimo Billiard, kami menawarkan lebih dari sekadar permainan biliar. Semua meja dirancang untuk kenyamanan dan presisi permainan terbaik. Lingkungan yang bersih, nyaman, dan dilengkapi dengan fasilitas pendukung terbaik. Tim kami siap membantu memastikan Anda mendapatkan pengalaman yang menyenangkan.</p>
+            </div>
+          </div><!-- End Service Item -->
+        </div>
+
+      </div>
+
+    </section><!-- /Services Section -->
+
+    <!-- Call To Action Section -->
+    <section id="call-to-action" class="call-to-action section dark-background">
+
+      <img src="{% static 'img/cta-bg.jpg' %}" alt="">
+
+      <div class="container">
+        <div class="row justify-content-center" data-aos="zoom-in" data-aos-delay="100">
+          <div class="col-xl-10">
+            <div class="text-center">
+              <h3>Tunggu Apa lagi?</h3>
+              <p>Ayo, Pesan Sekarang dan Jadikan Setiap Momen Lebih Seru!
+              Klik tombol di bawah ini untuk memesan meja dan nikmati pengalaman biliar tak terlupakan. Kami tunggu kedatangan Anda di Kimo Billiard, tempat di mana keseruan dan kenyamanan bertemu! </p>
+              <a class="cta-btn" href="https://wa.me/6281267403494?text=Halo%20Biliar%20Kimo,%20beri%20saya%20informasi%20menarik%20tentang%20layanan%20atau%20promosi%20Anda!" target="_blank">Pesan Sekarang</a>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section><!-- /Call To Action Section -->
+    <section id="contact" class="contact section">
+      <div class="container">
+        <div class="row">
+<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3960.95711323243!2d107.64248317356501!3d-6.895733367478096!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e68e700486b3683%3A0x1a7a2882cbd0a273!2sBILIAR%20KIMO!5e0!3m2!1sid!2sid!4v1733430779021!5m2!1sid!2sid" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+      </div>
+    </section>
+  </main>
+{%endblock%}

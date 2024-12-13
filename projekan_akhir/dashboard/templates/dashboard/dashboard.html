@@ -1,0 +1,54 @@
+{% extends 'projekan_akhir/base.html' %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="mb-4">Dashboard</h1>
+    
+    <div class="row">
+        <!-- Meja Biliar Count -->
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Total Meja Biliar</h5>
+                    <p class="card-text">{{ meja_biliar_count }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Menu Count -->
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Total Menu</h5>
+                    <p class="card-text">{{ menu_count }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Count -->
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Total Users</h5>
+                    <p class="card-text">{{ user_count }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pesanan Count -->
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Total Pesanan</h5>
+                    <p class="card-text">{{ pesanan_count }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Additional Data (Optional) -->
+    <div class="row mt-4">
+        <!-- Display other details or charts here -->
+    </div>
+</div>
+{% endblock %}

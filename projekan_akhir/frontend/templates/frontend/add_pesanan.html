@@ -1,0 +1,65 @@
+{% extends 'frontend/template_pesanan.html' %}
+{% block content %}
+<div class="container py-5">
+        {% if messages %}
+        {% for message in messages %}
+            {% if message.tags == "error" %}
+                <div class="alert alert-danger mt-5" role="alert">
+                    {{ message }}
+                </div>
+            {% elif message.tags == "success" %}
+                <div class="alert alert-success mt-5" role="alert">
+                    {{ message }}
+                </div>
+            {% else %}
+                <div class="alert alert-info mt-5" role="alert">
+                    {{ message }}
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+    <h4>Tentukan Meja dan durasi meja</h4>
+    <form method="POST">
+        {% csrf_token %}
+        
+        <div class="mb-3">
+            <label for="{{ pesanan_form.meja.id_for_label }}" class="form-label">{{ pesanan_form.meja.label }}</label>
+            {{ pesanan_form.meja }}  
+        </div>
+
+        <div class="mb-3">
+            <label for="{{ pesanan_form.durasi_meja.id_for_label }}" class="form-label">{{ pesanan_form.durasi_meja.label }}</label>
+            {{ pesanan_form.durasi_meja }} 
+        </div>
+        {{ formset.management_form }} 
+
+        <table id="formset-table" class="w-100">
+            <tr>
+                <td colspan="3">
+                    <h4>Pesanan Makanan dan Minuman</h4>
+                    {{ formset.management_form }} 
+                </td>
+            </tr>
+            <tr>
+                {% for form in formset %}
+                    <td class="col-md-4"> <!-- 3 kolom pada ukuran layar medium (md) dan lebih besar -->
+                        <div class="mb-5">
+                            <label for="{{ form.menu.id_for_label }}" class="form-label">{{ form.menu.label }}</label>
+                            {{ form.menu }}  <!-- Dengan kelas 'form-select' -->
+
+                            <label for="{{ form.jumlah.id_for_label }}" class="form-label">{{ form.jumlah.label }}</label>
+                            {{ form.jumlah }}  <!-- Dengan kelas 'form-control' -->
+                        </div>
+                    </td>
+                    {% if forloop.counter|divisibleby:3 %}
+                        </tr><tr>  <!-- Membuat baris baru setelah 3 kolom -->
+                    {% endif %}
+                {% endfor %}
+            </tr>
+        </table>
+
+        
+        <button type="submit" class="btn btn-dark">Simpan</button>
+    </form>
+</div>
+{% endblock %}

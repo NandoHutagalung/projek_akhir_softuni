@@ -1,0 +1,55 @@
+{% extends 'projekan_akhir/base.html' %}
+{% block content %}
+
+<div class="container mt-5 mb-5">
+    {% if messages %}
+        {% for message in messages %}
+            {% if message.tags == "error" %}
+                <div class="alert alert-danger mt-5" role="alert">
+                    {{ message }}
+                </div>
+            {% elif message.tags == "success" %}
+                <div class="alert alert-success mt-5" role="alert">
+                    {{ message }}
+                </div>
+            {% else %}
+                <div class="alert alert-info mt-5" role="alert">
+                    {{ message }}
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+    <a href="{% url 'menu_create' %}" class="btn btn-dark mb-3">Tambah Menu Baru</a>
+     
+    <table class="table table-bordered table-striped table-responsive" id="menu-table">
+        <thead class="table-dark">
+            <tr>
+                <th>Nama Menu</th>
+                <th>Harga</th>
+                <th>Foto</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for menu in menus %}
+            <tr>
+                <td>{{ menu.nama_menu }}</td>
+                <td>{{ menu.harga }}</td>
+                <td><img src="{{ menu.foto.url }}" width="100" alt="{{ menu.nama_menu }}"></td>
+                <td>
+                    <a href="{% url 'menu_detail' menu.id %}" class="btn btn-info btn-sm">Detail</a>
+                    <a href="{% url 'menu_edit' menu.id %}" class="btn btn-warning btn-sm">Edit</a>
+                    <a href="{% url 'menu_delete' menu.id %}" class="btn btn-danger btn-sm">Hapus</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<script>
+    $(document).ready(function() {
+        $('#menu-table').DataTable();
+    });
+</script>
+
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends 'frontend/template_pesanan.html' %}
+{% block content %}
+<div class="container py-5">
+    {% if messages %}
+        {% for message in messages %}
+            {% if message.tags == "error" %}
+                <div class="alert alert-danger mt-5" role="alert">
+                    {{ message }}
+                </div>
+            {% elif message.tags == "success" %}
+                <div class="alert alert-success mt-5" role="alert">
+                    {{ message }}
+                </div>
+            {% else %}
+                <div class="alert alert-info mt-5" role="alert">
+                    {{ message }}
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+    <h4>Update Profile</h4>
+        <form method="post">
+            {% csrf_token %}
+            <div class="row">
+                <input type="hidden" name="role" value="{{ form.role.value }}">
+                <!-- First Name (Left Column) -->
+                <div class="col-md-6 mb-3">
+                    <label for="id_first_name" class="form-label">First Name</label>
+                    <input type="text" name="first_name" id="id_first_name" class="form-control" value="{{ form.first_name.value }}" required>
+                </div>
+
+                <!-- Last Name (Right Column) -->
+                <div class="col-md-6 mb-3">
+                    <label for="id_last_name" class="form-label">Last Name</label>
+                    <input type="text" name="last_name" id="id_last_name" class="form-control" value="{{ form.last_name.value }}" required>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Username (Left Column) -->
+                <div class="col-md-6 mb-3">
+                    <label for="id_username" class="form-label">Username</label>
+                    <input type="text" name="username" id="id_username" class="form-control" value="{{ form.username.value }}" required>
+                </div>
+
+                <!-- Email (Right Column) -->
+                <div class="col-md-6 mb-3">
+                    <label for="id_email" class="form-label">Email</label>
+                    <input type="email" name="email" id="id_email" class="form-control" value="{{ form.email.value }}" required>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Password (Left Column) -->
+                <div class="col-md-6 mb-3">
+                    <label for="id_password1" class="form-label">Password</label>
+                    <input type="password" name="password1" id="id_password1" class="form-control">
+                </div>
+
+                <!-- Confirm Password (Right Column) -->
+                <div class="col-md-6 mb-3">
+                    <label for="id_password2" class="form-label">Confirm Password</label>
+                    <input type="password" name="password2" id="id_password2" class="form-control">
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <button type="submit" class="btn btn-dark">Update</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}

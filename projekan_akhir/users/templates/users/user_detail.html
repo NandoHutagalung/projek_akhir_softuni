@@ -1,0 +1,28 @@
+{% extends 'projekan_akhir/base.html' %}
+
+{% block content %}
+    <div class="container my-5">
+            <div class="mb-3">
+                <p><strong>Username:</strong> {{ user.username }}</p>
+            </div>
+
+            <div class="mb-3">
+                <p><strong>Full Name:</strong> {{ user.get_full_name }}</p>
+            </div>
+
+            <div class="mb-3">
+                <p><strong>Email:</strong> {{ user.email }}</p>
+            </div>
+
+            <div class="mb-3">
+                <p><strong>Role:</strong> {{ user.get_role_display }}</p>
+            </div>
+
+            <!-- Back to User List Link -->
+            <div class="d-grid gap-2 d-md-block">
+                <a href="{% url 'user_list' %}" class="btn btn-dark">Back to User List</a>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

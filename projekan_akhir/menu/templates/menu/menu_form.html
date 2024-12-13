@@ -1,0 +1,30 @@
+{% extends 'projekan_akhir/base.html' %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+    {% if messages %}
+        {% for message in messages %}
+            {% if message.tags == "error" %}
+                <div class="alert alert-danger mt-5" role="alert">
+                    {{ message }}
+                </div>
+            {% elif message.tags == "success" %}
+                <div class="alert alert-success mt-5" role="alert">
+                    {{ message }}
+                </div>
+            {% else %}
+                <div class="alert alert-info mt-5" role="alert">
+                    {{ message }}
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+    <h1 class="mt-4">Tambah/Edit Menu</h1>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-success">Simpan</button>
+    </form>
+    <a href="{% url 'menu_list' %}" class="btn btn-secondary mt-3">Kembali</a>
+</div>
+{% endblock %}

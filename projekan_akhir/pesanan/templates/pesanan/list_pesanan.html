@@ -1,0 +1,40 @@
+{% extends 'projekan_akhir/base.html' %}
+{% load static %}
+{% load filters %}
+{% block content %}
+<div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center py-2">
+    <a class="btn btn-dark" href="{% url 'add_pesanan' %}">Tambah Pesanan</a>
+    </div>
+    <table id="dataTables_pesanan" class="table table-bordered table-striped table-responsive">
+        <thead class="table-dark">
+            <tr>
+                <th>User</th>
+                <th>Meja</th>
+                <th>Tanggal</th>
+                <th>Total Harga</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for pesanan in pesanan_list %}
+            <tr>
+                <td>{{ pesanan.user.username }}</td>
+                <td>{{ pesanan.meja.no_meja }}</td>
+                <td>{{ pesanan.tanggal_pemesanan }}</td>
+                <td>{{ pesanan.total_harga | rupiah }}</td>
+                <td>
+                    <a class="btn btn-warning btn-sm" href="{% url 'edit_pesanan' pesanan.id %}">Edit</a> 
+                    <a class="btn btn-danger btn-sm" href="{% url 'delete_pesanan' pesanan.id %}">Hapus</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<script>
+    $(document).ready(function() {
+        $('#dataTables_pesanan').DataTable();
+    });
+</script>
+{% endblock %}

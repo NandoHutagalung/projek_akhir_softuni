@@ -1,0 +1,60 @@
+{% extends 'projekan_akhir/base.html' %}
+{% load static %}
+{% load filters %}
+{% block content %}
+    <div class="container my-5">
+    {% if messages %}
+        {% for message in messages %}
+            {% if message.tags == "error" %}
+                <div class="alert alert-danger mt-5" role="alert">
+                    {{ message }}
+                </div>
+            {% elif message.tags == "success" %}
+                <div class="alert alert-success mt-5" role="alert">
+                    {{ message }}
+                </div>
+            {% else %}
+                <div class="alert alert-info mt-5" role="alert">
+                    {{ message }}
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+    {% if request.user.role == 'admin' %}
+        <a class="btn btn-dark mb-3" href="{% url 'meja_create' %}">Create a new Billiard Table</a>
+    {% endif %}
+        <table id="meja-table" class="table table-bordered table-striped table-responsive">
+            <thead class="table-dark">
+                <tr>
+                    <th>No Meja</th>
+                    <th>Harga Siang</th>
+                    <th>Harga Malam</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for meja in meja_biliars %}
+                <tr>
+                    <td>{{ meja.no_meja }}</td>
+                    <td>{{ meja.harga_siang | rupiah }}</td>
+                    <td>{{ meja.harga_malam | rupiah }}</td>
+                    <td>{{ meja.get_status_display }}</td>
+                    <td>
+                        <a class="btn btn-warning btn-sm" href="{% url 'meja_detail' meja.id %}">Ubah Status</a>
+                        {% if request.user.role == 'admin' %}
+                            <a class="btn btn-danger btn-sm" href="{% url 'meja_delete' meja.id %}">Hapus</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('#meja-table').DataTable();
+        });
+    </script>
+{% endblock %}

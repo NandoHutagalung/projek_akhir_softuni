@@ -1,0 +1,33 @@
+{% extends 'projekan_akhir/base.html' %}
+
+{% block content %}
+    <h1>Edit Pesanan</h1>
+
+    <form method="POST">
+        {% csrf_token %}
+        {{ pesanan_form.as_p }}
+
+        <h2>Detail Pesanan</h2>
+        {{ formset.management_form }}
+        <table class="table">
+            {% for form in formset %}
+                <tr>
+                    <td>
+                        {{ form.menu }} <!-- Form untuk memilih menu -->
+                        {{ form.jumlah }} <!-- Form untuk memilih jumlah -->
+                    </td>
+                    <td>
+                        {% if form.DELETE %}
+                            <div>
+                                {{ form.DELETE }} <!-- Checkbox untuk menghapus detail pesanan -->
+                            </div>
+                        {% endif %}
+                                            {{ form.id }} 
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+
+        <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+    </form>
+{% endblock %}

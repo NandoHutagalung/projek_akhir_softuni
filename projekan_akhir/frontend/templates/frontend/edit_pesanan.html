@@ -1,0 +1,50 @@
+{% extends 'frontend/template_pesanan.html' %}
+
+{% block content %}
+<div class="container py-5">
+        {% if messages %}
+        {% for message in messages %}
+            {% if message.tags == "error" %}
+                <div class="alert alert-danger mt-5" role="alert">
+                    {{ message }}
+                </div>
+            {% elif message.tags == "success" %}
+                <div class="alert alert-success mt-5" role="alert">
+                    {{ message }}
+                </div>
+            {% else %}
+                <div class="alert alert-info mt-5" role="alert">
+                    {{ message }}
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+    <h4>Selamat Datang, {{ user.username }}</h4>
+    <div class="d-flex justify-content-between align-items-center py-2">
+    </div>
+    <h1>Edit Pesanan</h1>
+    <div class="py-5">
+        <form method="POST">
+            {% csrf_token %}
+            {{ pesanan_form.as_p }}
+            
+            <!-- Formset Management Form -->
+            {{ formset.management_form }}
+            
+            <!-- Formset with Grid -->
+            <div class="row g-3">
+                {% for form in formset %}
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            {{ form.as_p }}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Submit Button -->
+            <button class="btn btn-dark" type="submit">Simpan</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
