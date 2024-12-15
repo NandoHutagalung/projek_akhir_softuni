@@ -52,11 +52,11 @@ def login_view(request):
 
                 # Pemeriksaan role dan pengalihan halaman
                 if user.role in ['admin', 'staff']:
-                    return redirect('user_list')  # Halaman yang sama untuk admin dan staff
+                    return redirect('dashboard')  # Halaman yang sama untuk admin dan staff
                 elif user.role == 'member':
                     return redirect('index')  # Halaman khusus untuk member
 
-                return redirect('user_list')  # Default jika role tidak dikenali
+                return redirect('index')  # Default jika role tidak dikenali
 
             else:
                 messages.error(request, "Invalid username or password. Please try again.")
@@ -80,22 +80,7 @@ def logout_view(request):
     except Exception as e:
         messages.error(request, f"An error occurred during logout: {str(e)}")
         return redirect(request.META.get('HTTP_REFERER', 'login'))
-@login_required
-def profile_update(request, id):
-    user = get_object_or_404(User, id=id)
 
-    if request.method == 'POST':
-        form = UserUpdateForm(request.POST, instance=user)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Profil Anda telah diperbarui.")
-            return redirect('profile_update', id=id)
-        else:
-            messages.error(request, "Harap perbaiki kesalahan di bawah ini.")
-    else:
-        form = UserUpdateForm(instance=user)
-
-    return render(request, 'users/profile_update.html', {'form': form, 'user': user})
 @login_required
 def user_list(request):
     try:
@@ -123,7 +108,7 @@ def user_detail(request, pk):
 @login_required
 def create_user(request):
     try:
-        if request.user.role != 'admin':
+        if request.user.role not in ['admin', 'staff']:
             messages.error(request, "You do not have permission to access this page.")
             return redirect('profile_update')
 
@@ -149,7 +134,6 @@ def create_user(request):
         return redirect(request.META.get('HTTP_REFERER', 'user_list'))
 def user_delete(request, id):
     try:
-        # Ambil objek pengguna berdasarkan ID yang diberikan
         user = get_object_or_404(User, id=id)
 
         # Hapus pengguna dari database
@@ -167,3 +151,31 @@ def user_delete(request, id):
         
         # Redirect kembali ke halaman sebelumnya atau daftar pengguna
         return redirect(request.META.get('HTTP_REFERER', 'user_list'))
+    
+@login_required
+def profile_update(request, id):
+    user = get_object_or_404(User, id=id)
+
+    if request.method == 'POST':
+        form = UserUpdateForm(request.POST, instance=user)
+        if form.is_valid():
+            # Get the password values from the form
+            new_password1 = form.cleaned_data.get('password1')
+            new_password2 = form.cleaned_data.get('password2')
+
+            # Check if both passwords are provided and match 
+            if new_password1 and new_password1 == new_password2:
+                # Set the new password (hash it before saving)
+                form.instance.set_password(new_password1)
+
+            # Save the user instance
+            form.save()
+            messages.success(request, "Profil telah diperbarui.")
+            return redirect('profile_update', id=user.id)
+        else:
+            messages.error(request, "Harap perbaiki kesalahan di bawah ini.")
+    else:
+        form = UserUpdateForm(instance=user)
+
+    return render(request, 'users/profile_update.html', {'form': form, 'user': user})
+

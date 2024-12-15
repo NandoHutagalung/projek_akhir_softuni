@@ -14,7 +14,7 @@ from django.http import JsonResponse
 
 
 def index(request):
-    meja_biliars = MejaBiliar.objects.all()
+    meja_biliars = MejaBiliar.objects.raw("SELECT * FROM meja_biliar_mejabiliar ORDER BY CAST(no_meja AS INTEGER)")
     menu = Menu.objects.all()
     return render(request, 'frontend/index.html', {'meja_biliars': meja_biliars, 'menu': menu})
 
@@ -46,11 +46,10 @@ def add_pesanan(request):
                 pesanan_form_errors = pesanan_form.errors
                 formset_errors = formset.errors
                 messages.error(request, 'Terdapat kesalahan dalam form. Harap periksa kembali. Mungkin meja yang anda pilih saat ini sedang penuh')
-                return JsonResponse({'success': False, 'errors': formset.errors})
+                return redirect('frontendpesanan')  
         except Exception as e:
             messages.error(request, f'Error: {str(e)}')  
             return JsonResponse({'success': False, 'errors': formset.errors})
-
     else:
         pesanan_form = PesananForm()
         formset = DetailPesananFormSet()
@@ -60,16 +59,26 @@ def add_pesanan(request):
         'formset': formset,
     })
 @login_required
-def profile_update(request, id):
+def profile_update(request, id): 
     user = get_object_or_404(User, id=id)
     if request.user.id != user.id:
         raise Http404("Anda tidak memiliki izin untuk mengakses halaman ini.")
     if request.method == 'POST':
         form = UserUpdateForm(request.POST, instance=user)
         if form.is_valid():
+            # Get the password values from the form
+            new_password1 = form.cleaned_data.get('password1')
+            new_password2 = form.cleaned_data.get('password2')
+
+            # Check if both passwords are provided and match 
+            if new_password1 and new_password1 == new_password2:
+                # Set the new password (hash it before saving)
+                form.instance.set_password(new_password1)
+
+            # Save the user instance
             form.save()
             messages.success(request, "Profil Anda telah diperbarui.")
-            return redirect('profile_update', id=user.id)
+            return redirect('index')
         else:
             messages.error(request, "Harap perbaiki kesalahan di bawah ini.")
     else:
@@ -128,3 +137,10 @@ def edit_pesanan(request, pk):
         'formset': formset,
         'pesanan': pesanan,
     })
+def delete_pesanan(request, pk):
+    pesanan = get_object_or_404(Pesanan, pk=pk)
+    if request.user.id != pesanan.user.id:
+        raise Http404("Anda tidak memiliki izin untuk mengakses halaman ini.")
+    pesanan.delete()
+    messages.success(request, 'Pesanan berhasil dihapus.')
+    return redirect('listpesananuser', id=pesanan.user.id)

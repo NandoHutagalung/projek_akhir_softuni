@@ -42,6 +42,7 @@
                 <td>{{ pesanan.total_harga | rupiah }}</td>
                 <td>
                    <a href="{% url 'editpesananuser' pk=pesanan.id %}" class="btn btn-warning btn-sm">Edit</a>
+                   <a href="{% url 'deletepesananuser' pk=pesanan.id %}" class="btn btn-danger btn-sm">Cancel</a>
                 </td>
             </tr>
             {% endfor %}

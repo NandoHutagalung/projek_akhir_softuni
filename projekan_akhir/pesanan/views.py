@@ -55,49 +55,38 @@ def add_pesanan(request):
 
 @login_required
 def edit_pesanan(request, pk):
-    # Ambil pesanan berdasarkan pk
     pesanan = get_object_or_404(Pesanan, pk=pk)
-
-    # Buat formset untuk DetailPesanan, dengan extra form kosong untuk menambah detail baru
-    DetailPesananFormSet = modelformset_factory(DetailPesanan, form=DetailPesananForm, extra=5, can_delete=True)
-
-    if request.method == "POST":
-        # Ambil form dan formset dari data POST
+    if request.method == 'POST':
         pesanan_form = PesananForm(request.POST, instance=pesanan)
-        formset = DetailPesananFormSet(request.POST, queryset=pesanan.detail_pesanan.all())
-
+        formset = DetailPesananFormSet(request.POST, instance=pesanan)
         if pesanan_form.is_valid() and formset.is_valid():
-            # Simpan perubahan pada form pesanan
-            pesanan_form.save()
-
-            # Proses penyimpanan detail pesanan
-            for form in formset:
-                if form.cleaned_data:
-                    detail = form.save(commit=False)
-
-                    if form.cleaned_data.get('DELETE'):  # Jika ditandai untuk dihapus
-                        detail.delete()
-                    else:
-                        # Menyimpan detail pesanan dan menghubungkannya ke pesanan
-                        if not detail.pesanan:  # Jika belum terhubung ke pesanan
-                            detail.pesanan = pesanan
-                        detail.save()
-
-            # Menyimpan relasi Many-to-Many (jika perlu)
-            pesanan.detail_pesanan.set([form.instance for form in formset if form.cleaned_data])
-
-            # Menampilkan pesan sukses
-            messages.success(request, "Pesanan berhasil diperbarui!")
-            return redirect('list_pesanan')  # Redirect ke halaman list pesanan
+            pesanan = pesanan_form.save(commit=False)
+            pesanan.user = pesanan.user
+            pesanan.save()
+            details = formset.save(commit=False)
+            for detail in details:
+                if detail.id is None:
+                    detail.pesanan = pesanan
+                detail.save()
+            pesanan.hitung_total_harga()
+            messages.success(request, 'Pesanan berhasil diperbarui.')
+            redirect('list_pesanan')
 
         else:
-            messages.error(request, "Terdapat kesalahan dalam form. Silakan coba lagi.")
-            print(pesanan_form.errors)
-            print(formset.errors)
+            pesanan_form_errors = pesanan_form.errors
+            formset_errors = formset.errors
+
+            errors = {
+                'pesanan_form_errors': pesanan_form_errors,
+                'formset_errors': formset_errors
+            }
+
+            redirect('list_pesanan')
 
     else:
+        redirect('list_pesanan')
         pesanan_form = PesananForm(instance=pesanan)
-        formset = DetailPesananFormSet(queryset=pesanan.detail_pesanan.all())
+        formset = DetailPesananFormSet(instance=pesanan)
 
     return render(request, 'pesanan/edit_pesanan.html', {
         'pesanan_form': pesanan_form,

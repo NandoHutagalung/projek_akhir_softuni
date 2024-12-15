@@ -1,19 +1,55 @@
 {% extends 'projekan_akhir/base.html' %}
 
 {% block content %}
-  <h2>Create New User</h2>
+<div class="container my-5">
+    <h2 class="mb-4">Tambahkan User Baru</h2>
+
+    {% if messages %}
+        <div class="alert alert-danger" role="alert">
+            {% for message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
   
-  {% if messages %}
-    <div class="alert alert-danger" role="alert">
-      {% for message in messages %}
-        <p>{{ message }}</p>
-      {% endfor %}
-    </div>
-  {% endif %}
-  
-  <form method="POST">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Create User</button>
-  </form>
+    <form method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="role" value="member">
+        
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="id_first_name" class="form-label">First Name</label>
+                {{ form.first_name }}
+            </div>
+            <div class="col-md-6">
+                <label for="id_last_name" class="form-label">Last Name</label>
+                {{ form.last_name }}
+            </div>
+        </div>
+        
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="id_username" class="form-label">Username</label>
+                {{ form.username }}
+            </div>
+            <div class="col-md-6">
+                <label for="id_email" class="form-label">Email</label>
+                {{ form.email }}
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="id_password1" class="form-label">Password</label>
+                {{ form.password1 }}
+            </div>
+            <div class="col-md-6">
+                <label for="id_password2" class="form-label">Confirm Password</label>
+                {{ form.password2 }}
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-dark">Simpan</button>
+    </form>
+</div>
 {% endblock %}

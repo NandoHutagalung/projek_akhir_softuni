@@ -1,7 +1,7 @@
 {% extends 'projekan_akhir/base.html' %}
 
 {% block content %}
-    <div class="container my-5">
+<div class="container py-5">
     {% if messages %}
         {% for message in messages %}
             {% if message.tags == "error" %}
@@ -19,6 +19,7 @@
             {% endif %}
         {% endfor %}
     {% endif %}
+    <h4>Update Profile</h4>
         <form method="post">
             {% csrf_token %}
             <div class="row">
@@ -65,7 +66,7 @@
             </div>
 
             <div class="mb-3">
-                <button type="submit" class="btn btn-primary">Update</button>
+                <button type="submit" class="btn btn-dark">Update</button>
             </div>
         </form>
     </div>

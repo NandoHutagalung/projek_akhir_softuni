@@ -1,33 +1,50 @@
 {% extends 'projekan_akhir/base.html' %}
 
 {% block content %}
+<div class="container py-5">
+        {% if messages %}
+        {% for message in messages %}
+            {% if message.tags == "error" %}
+                <div class="alert alert-danger mt-5" role="alert">
+                    {{ message }}
+                </div>
+            {% elif message.tags == "success" %}
+                <div class="alert alert-success mt-5" role="alert">
+                    {{ message }}
+                </div>
+            {% else %}
+                <div class="alert alert-info mt-5" role="alert">
+                    {{ message }}
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+    <h4>Selamat Datang, {{ user.username }}</h4>
+    <div class="d-flex justify-content-between align-items-center py-2">
+    </div>
     <h1>Edit Pesanan</h1>
+    <div class="py-5">
+        <form method="POST">
+            {% csrf_token %}
+            {{ pesanan_form.as_p }}
+            
+            <!-- Formset Management Form -->
+            {{ formset.management_form }}
+            
+            <!-- Formset with Grid -->
+            <div class="row g-3">
+                {% for form in formset %}
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            {{ form.as_p }}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
 
-    <form method="POST">
-        {% csrf_token %}
-        {{ pesanan_form.as_p }}
-
-        <h2>Detail Pesanan</h2>
-        {{ formset.management_form }}
-        <table class="table">
-            {% for form in formset %}
-                <tr>
-                    <td>
-                        {{ form.menu }} <!-- Form untuk memilih menu -->
-                        {{ form.jumlah }} <!-- Form untuk memilih jumlah -->
-                    </td>
-                    <td>
-                        {% if form.DELETE %}
-                            <div>
-                                {{ form.DELETE }} <!-- Checkbox untuk menghapus detail pesanan -->
-                            </div>
-                        {% endif %}
-                                            {{ form.id }} 
-                    </td>
-                </tr>
-            {% endfor %}
-        </table>
-
-        <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
-    </form>
+            <!-- Submit Button -->
+            <button class="btn btn-dark" type="submit">Simpan</button>
+        </form>
+    </div>
+</div>
 {% endblock %}

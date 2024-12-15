@@ -1,8 +1,10 @@
 {% extends 'projekan_akhir/base.html' %}
-{% load static %}
-{% load filters %}
 {% block content %}
-    <div class="container my-5">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+<div class="container my-5">
     {% if messages %}
         {% for message in messages %}
             {% if message.tags == "error" %}
@@ -20,41 +22,256 @@
             {% endif %}
         {% endfor %}
     {% endif %}
-    {% if request.user.role == 'admin' %}
-        <a class="btn btn-dark mb-3" href="{% url 'meja_create' %}">Create a new Billiard Table</a>
+    {% if user.is_authenticated and user.role == "admin" %}
+    <button id="openModalBtn" class="btn btn-dark btn-sm mb-3">Tambah Meja Biliar</button>
     {% endif %}
-        <table id="meja-table" class="table table-bordered table-striped table-responsive">
-            <thead class="table-dark">
-                <tr>
-                    <th>No Meja</th>
-                    <th>Harga Siang</th>
-                    <th>Harga Malam</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for meja in meja_biliars %}
-                <tr>
-                    <td>{{ meja.no_meja }}</td>
-                    <td>{{ meja.harga_siang | rupiah }}</td>
-                    <td>{{ meja.harga_malam | rupiah }}</td>
-                    <td>{{ meja.get_status_display }}</td>
-                    <td>
-                        <a class="btn btn-warning btn-sm" href="{% url 'meja_detail' meja.id %}">Ubah Status</a>
-                        {% if request.user.role == 'admin' %}
-                            <a class="btn btn-danger btn-sm" href="{% url 'meja_delete' meja.id %}">Hapus</a>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <table id="meja-table" class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>No Meja</th>
+                <th>Harga Siang</th>
+                <th>Harga Malam</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Data will be dynamically inserted by AJAX -->
+        </tbody>
+    </table>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="updateStatusModal" tabindex="-1" aria-labelledby="updateStatusModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="updateStatusModalLabel">Update Status Meja</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="update-status-form">
+            <input type="hidden" id="meja-id">
+            <div class="mb-3">
+              <label for="meja-status" class="form-label">Status</label>
+              <select class="form-select" id="meja-status">
+                <option value="ada">Ada</option>
+                <option value="full">Full</option>
+                <option value="perbaikan">Perbaikan</option>
+              </select>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+          <button type="button" class="btn btn-dark" id="save-status">Simpan Perubahan</button>
+        </div>
+      </div>
     </div>
+  </div>
+  
+  <div class="modal fade" id="addTableModal" tabindex="-1" role="dialog" aria-labelledby="addTableModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <form id="addTableForm">
+                    <div class="form-group">
+                        <label for="no_meja">No Meja</label>
+                        <input type="text" class="form-control" id="no_meja" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="harga_siang">Harga Siang</label>
+                        <input type="number" class="form-control" id="harga_siang" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="harga_malam">Harga Malam</label>
+                        <input type="number" class="form-control" id="harga_malam" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="status">Status</label>
+                        <select class="form-control" id="status" required>
+                            <option value="ada">Ada</option>
+                            <option value="full">Full</option>
+                            <option value="perbaikan">Perbaikan</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-dark">Simpan</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- DataTables CSS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.5/css/jquery.dataTables.min.css">
 
-    <script>
-        $(document).ready(function() {
-            $('#meja-table').DataTable();
+<!-- jQuery and DataTables JS -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    function fetchTables() {
+        $.ajax({
+            url: '/meja_biliar/data', // Endpoint untuk mengambil data meja
+            type: 'GET',
+            success: function(response) {
+                if (response.success) {
+                    const tables = response.data;
+                    let tableRows = '';
+
+                    tables.forEach(meja => {
+                        tableRows += `
+                            <tr>
+                                <td>${meja.no_meja}</td>
+                                <td>${meja.harga_siang}</td>
+                                <td>${meja.harga_malam}</td>
+                                <td>${meja.status}</td>
+                                <td>
+                                    <button onclick="openUpdateModal(${meja.id}, '${meja.status}')" class="btn btn-warning btn-sm">Update</button>
+                                    {% if user.is_authenticated and user.role == "admin" %}
+                                    <button onclick="deleteTable(${meja.id})" class="btn btn-danger btn-sm">Hapus</button>
+                                    {% endif %}
+                                </td>
+                            </tr>`;
+                    });
+
+                    // Populate table body with rows
+                    $('#meja-table tbody').html(tableRows);
+
+                    // Initialize DataTables
+                    $('#meja-table').DataTable({
+                        destroy: true, // Destroy existing instance before reinitializing
+                        paging: true,
+                        searching: true,
+                        ordering: true,
+                        responsive: true
+                    });
+                } else {
+                    alert('Failed to fetch tables: ' + response.message);
+                }
+            },
+            error: function() {
+                alert('Error fetching tables');
+            }
         });
-    </script>
+    }
+
+    $(document).ready(function() {
+        fetchTables();
+    });
+</script>
+<script>
+    function deleteTable(meja_id) {
+        if (confirm('Are you sure you want to delete this table?')) {
+            $.ajax({
+                url: '/meja_biliar/delete/' + meja_id,
+                type: 'DELETE',
+                success: function(response) {
+                    if (response.success) {
+                        fetchTables();
+                        window.location.reload();
+                    } else {
+                        fetchTables();
+                        window.location.reload();
+                        alert('Failed to delete table: ' + response.message);
+                    }
+                },
+                error: function() {
+                    fetchTables();
+                    window.location.reload();
+                    alert('Error deleting table');
+                }
+            });
+        }
+    }
+</script>
+<script>
+function openUpdateModal(mejaId, currentStatus) {
+    // Set meja ID dan status saat ini di modal
+    $('#meja-id').val(mejaId);
+    $('#meja-status').val(currentStatus);
+
+    // Tampilkan modal
+    $('#updateStatusModal').modal('show');
+}
+
+$('#save-status').on('click', function() {
+    const mejaId = $('#meja-id').val();
+    const newStatus = $('#meja-status').val();
+
+    $.ajax({
+        url: '/meja_biliar/update_status', // Endpoint Django
+        type: 'POST',
+        data: {
+            id: mejaId,
+            status: newStatus,
+            csrfmiddlewaretoken: '{{ csrf_token }}' // Token CSRF untuk keamanan
+        },
+        success: function(response) {
+            if (response.success) {
+                alert(response.message);
+                $('#updateStatusModal').modal('hide'); // Tutup modal
+                fetchTables();
+                window.location.reload(); // Refresh tabel untuk memperbarui data
+            } else {
+                alert('Gagal: ' + response.message);
+            }
+        },
+        error: function(error) {
+            alert('Terjadi kesalahan saat memperbarui status meja.');
+            window.location.reload();
+        }
+    });
+});
+
+</script>
+<script>
+    $(document).ready(function() {
+        // Memuat data meja
+        fetchTables();
+
+        // Menangani tombol "Tambah Meja Biliar"
+        $('#openModalBtn').click(function() {
+            var myModal = new bootstrap.Modal(document.getElementById('addTableModal'));
+            myModal.show();  // Menampilkan modal
+        });
+
+        // Menangani pengiriman form untuk tambah meja
+        $('#addTableForm').submit(function(event) {
+            event.preventDefault();
+
+            const no_meja = $('#no_meja').val();
+            const harga_siang = $('#harga_siang').val();
+            const harga_malam = $('#harga_malam').val();
+            const status = $('#status').val();
+
+            $.ajax({
+                url: '/meja_biliar/tambah',
+                type: 'POST',
+                data: {
+                    no_meja: no_meja,
+                    harga_siang: harga_siang,
+                    harga_malam: harga_malam,
+                    status: status,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    if (response.success) {
+                        alert('Meja berhasil ditambahkan!');
+                        fetchTables();  // Refresh tabel setelah meja ditambahkan
+                        $('#addTableModal').modal('hide');  // Menutup modal
+                        window.location.reload();
+                    } else {
+                        alert('Gagal menambahkan meja: ' + response.message);
+                        window.location.reload();
+                    }
+                },
+                error: function() {
+                    alert('Terjadi kesalahan saat menambah meja.');
+                    window.location.reload();
+                }
+            });
+        });
+    });
+</script>
+
 {% endblock %}
